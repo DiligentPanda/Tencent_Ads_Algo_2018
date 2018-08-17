@@ -1,0 +1,219 @@
+
+model_name: "ModelDINFFM_v3_r" # the name of model class
+description: "exp_0" # description of this experiments, used as folder name
+seed: 72041 # random seed
+cuda: true # use cuda?
+root_output_path: "output" # the root path of output
+resume_fn: "output/M_ff/ModelDINFFM_v3_r/exp_0/epoch_1.checkpoint" # path to the checkpoint file
+gpu_ids:
+  - 3
+
+data:
+ root_path: "data" # root path of data
+ dataset: "M_ff" # name of dataset
+ user_fn: "userFeature_mapped.data"
+ ad_fn: "adFeature_mapped.data"
+ user_fi_fn: "user_feat_infos.txt"
+ ad_fi_fn: "ad_feat_infos.txt"
+ train_rfeat_fp: "data/M_ff/train_his.csv"
+ valid_rfeat_fp: "data/M_ff/test2_his.csv"
+ test_rfeat_fp: "data/M_ff/test2_his.csv"
+ r_fi_fp: "data/M_ff/his_feat_infos.txt"
+
+optim:
+ lr: 0.002
+ weight_decay: 0 # why I can't use this. weird
+
+loss:
+ name: "bce" # the type of loss to use
+ gamma: 2
+
+reg: # [we don't use regularization.]
+ lambda: 0
+ feat:
+  - marriageStatus
+  - LBS
+  - interest1
+  - interest2
+  - interest3
+  - interest4
+  - interest5
+  - kw1
+  - kw2
+  - kw3
+  - topic1
+  - topic2
+  - topic3
+  - appIdInstall
+  - appIdAction
+
+train:
+ fn: "train.csv"
+ resume: false # resume training ?
+# ed_batch: 30000
+ ed_epoch: 1 # end epoch
+ batch_size: 6000
+ n_worker: 8 # number of workers for DataLoader
+ logging_freq: 200 # logging frequency: in batch
+ backup_freq_epoch: 1  # backup frequency: in epoch
+ valid_freq_epoch: 1 # validation frequency: in epoch
+ backup_freq_batch: 2000  # backup frequency: in batch
+ valid_freq_batch: 2000 # validation frequency: in batch
+ pos_weight: 10 # loss weight for positive samples
+ lr_steps: [1,2,3,4] # learning rate decay after: in epoch
+ lr_decay: 0.5 # decay rate
+ p2n_radio: 1/4 # [we don't use sample balance.] n_pos:n_neg. in dataset it is roughly 1:20
+ use_radio_sampler: false # whether to use sample balance
+ start_valid_epoch: 2 # valid start from: in epoch
+ start_backup_epoch: 1 # backup start from: in epoch
+ start_valid_batch: 12000 # valid start from: in batch
+ start_backup_batch: 12000 # backup start from : in batch
+
+valid:
+ fn: "test2.csv"
+ batch_size: 6000
+ n_worker: 8
+ logging_freq: 100 # logging frequency: in batch
+ res_fn: "valid_res" # the result file name for valid. it is only temp file and might be overwritten.
+ init_valid: false # whether to valid before training starts
+
+test:
+ fn: "test2.csv"
+ batch_size: 8000
+ n_worker: 8
+ logging_freq: 100 # logging frequency: in batch
+ res_fn: "test_his_test2_fold_0_res" # the result file name for test
+ extract_features: true # [we don't extract features.]
+
+feat:
+ filter: # If a feature value has frequency lower than the frequency specified here, this feature value will be mapped to a special value.
+  marriageStatus: 10
+  LBS: 10
+  interest1: 10
+  interest2: 10
+  interest3: 10
+  interest4: 10
+  interest5: 10
+  kw1: 10
+  kw2: 10
+  kw3: 10
+  topic1: 10
+  topic2: 10
+  topic3: 10
+  appIdInstall: 10
+  appIdAction: 10
+ u_enc: # (user) The feature encoding method for a feature value: 0:discarded 1:one-hot 2:embedding
+  age: 2
+  gender: 2
+  marriageStatus: 2
+  education: 2
+  consumptionAbility: 2
+  LBS: 2
+  interest1: 2
+  interest2: 2
+  interest3: 2
+  interest4: 2
+  interest5: 2
+  kw1: 2
+  kw2: 2
+  kw3: 2
+  topic1: 2
+  topic2: 2
+  topic3: 2
+  appIdInstall: 2
+  appIdAction: 2
+  ct: 2
+  os: 2
+  carrier: 2
+  house: 2
+ u_embed_cfg: # (user) configuration of embedding: the dim of embedding, whether to use attention.
+  age:
+   dim: 6
+  gender:
+   dim: 6
+  marriageStatus:
+   dim: 6
+  education:
+   dim: 6
+  consumptionAbility:
+   dim: 6
+  LBS:
+   dim: 6
+  interest1:
+   dim: 6
+   atten: true
+  interest2:
+   dim: 6
+   atten: true
+  interest3:
+   dim: 6
+   atten: true
+  interest4:
+   dim: 6
+   atten: true
+  interest5:
+   dim: 6
+   atten: true
+  kw1:
+   dim: 6
+   atten: true
+  kw2:
+   dim: 6
+   atten: true
+  kw3:
+   dim: 6
+   atten: true
+  topic1:
+   dim: 6
+   atten: true
+  topic2:
+   dim: 6
+   atten: true
+  topic3:
+   dim: 6
+   atten: true
+  appIdInstall:
+   dim: 6
+   atten: true
+  appIdAction:
+   dim: 6
+   atten: true
+  ct:
+   dim: 6
+  os:
+   dim: 6
+  carrier:
+   dim: 6
+  house:
+   dim: 6
+ a_enc: # (ad) The feature encoding method for a feature value: 0:discarded 1:one-hot 2:embedding
+  aid: 2
+  advertiserId: 2
+  campaignId: 2
+  creativeId: 0
+  creativeSize: 2
+  adCategoryId: 2
+  productId: 2
+  productType: 2
+ a_embed_cfg: # (ad) configuration of embedding: the dim of embedding, whether to use attention.
+  aid:
+   dim: 6
+  advertiserId:
+   dim: 6
+  campaignId:
+   dim: 6
+  creativeId:
+   dim: 6
+  creativeSize:
+   dim: 6
+  productId:
+   dim: 6
+  productType:
+   dim: 6
+  adCategoryId:
+   dim: 6
+ r_enc: # (history) The feature encoding method for a feature value: 0:discarded 1:one-hot 2:embedding
+  pos_his: 2
+  neg_his: 2
+  pos_feats: 2
+  neg_feats: 2
